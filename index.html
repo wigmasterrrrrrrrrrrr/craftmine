@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Blockcraft Menu</title>
   <style>
     html, body {
@@ -11,6 +11,10 @@
       height: 100%;
       overflow: hidden;
       background: #000;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
     }
 
     canvas {
@@ -25,17 +29,19 @@
       align-items: center;
       justify-content: center;
       pointer-events: none;
+      z-index: 10;
     }
 
     .title {
-      color: white;
+      color: #fff;
       font-family: Arial Black, sans-serif;
       font-size: clamp(42px, 7vw, 96px);
-      text-shadow:
-        4px 4px 0 #444,
-        8px 8px 0 rgba(0,0,0,0.3);
       letter-spacing: 2px;
+      text-shadow:
+        4px 4px 0 #4a4a4a,
+        8px 8px 0 rgba(0,0,0,0.28);
       margin-bottom: 8px;
+      user-select: none;
     }
 
     .splash {
@@ -45,7 +51,8 @@
       transform: rotate(-12deg);
       text-shadow: 2px 2px 0 #000;
       margin-bottom: 28px;
-      animation: pulse 1.5s infinite ease-in-out;
+      animation: pulse 1.6s infinite ease-in-out;
+      user-select: none;
     }
 
     @keyframes pulse {
@@ -62,17 +69,18 @@
     }
 
     .btn {
-      background: linear-gradient(to bottom, #bdbdbd, #7e7e7e);
-      border: 3px solid #444;
-      box-shadow:
-        inset 0 2px 0 rgba(255,255,255,0.3),
-        inset 0 -2px 0 rgba(0,0,0,0.25);
+      appearance: none;
+      border: 3px solid #3f3f3f;
+      background: linear-gradient(to bottom, #bdbdbd, #7a7a7a);
       color: white;
       font-family: Arial Black, sans-serif;
       font-size: clamp(16px, 2vw, 24px);
       text-shadow: 2px 2px 0 #000;
-      padding: 14px;
+      padding: 14px 18px;
       cursor: pointer;
+      box-shadow:
+        inset 0 2px 0 rgba(255,255,255,0.28),
+        inset 0 -2px 0 rgba(0,0,0,0.26);
     }
 
     .btn:hover {
@@ -83,13 +91,15 @@
       transform: translateY(2px);
     }
 
-    .footer-left, .footer-right {
+    .footer-left,
+    .footer-right {
       position: fixed;
       bottom: 10px;
       color: white;
       font-size: 13px;
-      font-family: sans-serif;
       text-shadow: 1px 1px 0 #000;
+      z-index: 10;
+      user-select: none;
       pointer-events: none;
     }
 
@@ -100,40 +110,50 @@
 <body>
   <div class="ui">
     <div class="title">BLOCKCRAFT</div>
-    <div class="splash" id="splash">Now with real blocks!</div>
+    <div class="splash" id="splash">Now with culled faces!</div>
 
     <div class="menu">
-      <button class="btn" onclick="alert('Singleplayer')">Singleplayer</button>
-      <button class="btn" onclick="alert('Multiplayer')">Multiplayer</button>
-      <button class="btn" onclick="alert('Options')">Options</button>
-      <button class="btn" onclick="alert('Quit Game')">Quit Game</button>
+      <button class="btn" id="singleBtn">Singleplayer</button>
+      <button class="btn" id="multiBtn">Multiplayer</button>
+      <button class="btn" id="optionsBtn">Options</button>
+      <button class="btn" id="quitBtn">Quit Game</button>
     </div>
   </div>
 
-  <div class="footer-left">Blockcraft Clone v0.2</div>
-  <div class="footer-right">Voxel Panorama Menu</div>
+  <div class="footer-left">Blockcraft Clone v0.3</div>
+  <div class="footer-right">Voxel Panorama + Face Culling</div>
 
   <script type="module">
     import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
 
+    // -------------------------
+    // Splash text
+    // -------------------------
     const splashes = [
-      "Now with real blocks!",
+      "Now with culled faces!",
       "No bridge photos included!",
       "100% more cubic!",
-      "Procedurally tasty!",
-      "Grass sold separately!"
+      "Procedurally menu'd!",
+      "Hidden faces not invited!",
+      "Rendered responsibly!"
     ];
     document.getElementById("splash").textContent =
       splashes[Math.floor(Math.random() * splashes.length)];
 
+    // -------------------------
+    // Renderer
+    // -------------------------
     const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.prepend(renderer.domElement);
 
+    // -------------------------
+    // Scene / camera / lights
+    // -------------------------
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x87c6ff);
-    scene.fog = new THREE.Fog(0x87c6ff, 30, 90);
+    scene.fog = new THREE.Fog(0x87c6ff, 35, 120);
 
     const camera = new THREE.PerspectiveCamera(
       70,
@@ -141,130 +161,322 @@
       0.1,
       500
     );
+    camera.position.set(0, 14, 0);
 
-    // Menu panorama camera position
-    camera.position.set(0, 12, 0);
-
-    const ambient = new THREE.AmbientLight(0xffffff, 0.75);
+    const ambient = new THREE.AmbientLight(0xffffff, 0.78);
     scene.add(ambient);
 
-    const sun = new THREE.DirectionalLight(0xffffff, 0.9);
-    sun.position.set(30, 50, 20);
+    const sun = new THREE.DirectionalLight(0xffffff, 0.95);
+    sun.position.set(30, 60, 25);
     scene.add(sun);
 
-    const world = new THREE.Group();
-    scene.add(world);
+    // -------------------------
+    // Block storage
+    // -------------------------
+    const blocks = new Map();
 
-    const cubeGeo = new THREE.BoxGeometry(1, 1, 1);
-
-    const materials = {
-      grass: new THREE.MeshLambertMaterial({ color: 0x4cba3c }),
-      dirt: new THREE.MeshLambertMaterial({ color: 0x8a5a2b }),
-      stone: new THREE.MeshLambertMaterial({ color: 0x7d7d7d }),
-      wood: new THREE.MeshLambertMaterial({ color: 0x6b4a2b }),
-      leaves: new THREE.MeshLambertMaterial({ color: 0x2e8b3c }),
-      water: new THREE.MeshLambertMaterial({
-        color: 0x3a7bd5,
-        transparent: true,
-        opacity: 0.8
-      })
-    };
-
-    function block(x, y, z, mat) {
-      const mesh = new THREE.Mesh(cubeGeo, mat);
-      mesh.position.set(x, y, z);
-      world.add(mesh);
+    function key(x, y, z) {
+      return `${x},${y},${z}`;
     }
 
-    // Simple terrain height function
+    function setBlock(x, y, z, type) {
+      blocks.set(key(x, y, z), type);
+    }
+
+    function getBlock(x, y, z) {
+      return blocks.get(key(x, y, z));
+    }
+
+    function removeBlock(x, y, z) {
+      blocks.delete(key(x, y, z));
+    }
+
+    // -------------------------
+    // Terrain generation
+    // -------------------------
+    const WORLD_SIZE = 40;
+    const WATER_LEVEL = 5;
+
     function heightAt(x, z) {
       return Math.floor(
-        6
-        + Math.sin(x * 0.22) * 2
-        + Math.cos(z * 0.18) * 2
-        + Math.sin((x + z) * 0.12) * 2
+        6 +
+        Math.sin(x * 0.22) * 2 +
+        Math.cos(z * 0.18) * 2 +
+        Math.sin((x + z) * 0.12) * 2
       );
     }
 
-    const size = 40;
-    const waterLevel = 5;
-
-    for (let x = -size; x <= size; x++) {
-      for (let z = -size; z <= size; z++) {
+    for (let x = -WORLD_SIZE; x <= WORLD_SIZE; x++) {
+      for (let z = -WORLD_SIZE; z <= WORLD_SIZE; z++) {
         const h = heightAt(x, z);
 
         for (let y = 0; y <= h; y++) {
           if (y === h) {
-            block(x, y, z, h <= waterLevel ? materials.sand || materials.dirt : materials.grass);
+            setBlock(x, y, z, h <= WATER_LEVEL ? "sand" : "grass");
           } else if (y > h - 3) {
-            block(x, y, z, materials.dirt);
+            setBlock(x, y, z, "dirt");
           } else {
-            block(x, y, z, materials.stone);
+            setBlock(x, y, z, "stone");
           }
         }
 
-        // Water
-        if (h < waterLevel) {
-          for (let y = h + 1; y <= waterLevel; y++) {
-            block(x, y, z, materials.water);
+        if (h < WATER_LEVEL) {
+          for (let y = h + 1; y <= WATER_LEVEL; y++) {
+            setBlock(x, y, z, "water");
           }
         }
 
-        // Trees
         const canTree =
-          h > waterLevel + 1 &&
-          Math.random() < 0.015 &&
-          Math.abs(x) > 4 &&
-          Math.abs(z) > 4;
+          h > WATER_LEVEL + 1 &&
+          Math.random() < 0.018 &&
+          Math.abs(x) > 6 &&
+          Math.abs(z) > 6;
 
         if (canTree) {
           const trunkHeight = 4 + Math.floor(Math.random() * 2);
 
           for (let y = h + 1; y <= h + trunkHeight; y++) {
-            block(x, y, z, materials.wood);
+            setBlock(x, y, z, "wood");
           }
 
           for (let lx = -2; lx <= 2; lx++) {
             for (let lz = -2; lz <= 2; lz++) {
               for (let ly = trunkHeight - 1; ly <= trunkHeight + 1; ly++) {
                 if (Math.abs(lx) + Math.abs(lz) < 4) {
-                  block(x + lx, h + ly, z + lz, materials.leaves);
+                  setBlock(x + lx, h + ly, z + lz, "leaves");
                 }
               }
             }
           }
 
-          block(x, h + trunkHeight + 2, z, materials.leaves);
+          setBlock(x, h + trunkHeight + 2, z, "leaves");
         }
       }
     }
 
-    // Center clearing so menu sees open terrain
-    const clearRadius = 6;
-    world.children = world.children.filter(mesh => {
-      const { x, z, y } = mesh.position;
-      if (Math.abs(x) < clearRadius && Math.abs(z) < clearRadius && y > 6) {
-        world.remove(mesh);
+    // Clear center space so the menu has a better view
+    for (let x = -6; x <= 6; x++) {
+      for (let z = -6; z <= 6; z++) {
+        for (let y = 7; y <= 30; y++) {
+          removeBlock(x, y, z);
+        }
+      }
+    }
+
+    // -------------------------
+    // Materials
+    // -------------------------
+    const materials = {
+      grass: new THREE.MeshLambertMaterial({ color: 0x4cba3c }),
+      dirt: new THREE.MeshLambertMaterial({ color: 0x8a5a2b }),
+      stone: new THREE.MeshLambertMaterial({ color: 0x7d7d7d }),
+      sand: new THREE.MeshLambertMaterial({ color: 0xd6c27a }),
+      wood: new THREE.MeshLambertMaterial({ color: 0x6b4a2b }),
+      leaves: new THREE.MeshLambertMaterial({
+        color: 0x2e8b3c,
+        transparent: true,
+        opacity: 0.95
+      }),
+      water: new THREE.MeshLambertMaterial({
+        color: 0x3a7bd5,
+        transparent: true,
+        opacity: 0.78
+      })
+    };
+
+    // -------------------------
+    // Face data
+    // -------------------------
+    const faces = [
+      {
+        dir: [ 1, 0, 0 ],
+        corners: [
+          [ 0.5, -0.5, -0.5 ],
+          [ 0.5,  0.5, -0.5 ],
+          [ 0.5,  0.5,  0.5 ],
+          [ 0.5, -0.5,  0.5 ]
+        ]
+      },
+      {
+        dir: [ -1, 0, 0 ],
+        corners: [
+          [ -0.5, -0.5,  0.5 ],
+          [ -0.5,  0.5,  0.5 ],
+          [ -0.5,  0.5, -0.5 ],
+          [ -0.5, -0.5, -0.5 ]
+        ]
+      },
+      {
+        dir: [ 0, 1, 0 ],
+        corners: [
+          [ -0.5,  0.5,  0.5 ],
+          [  0.5,  0.5,  0.5 ],
+          [  0.5,  0.5, -0.5 ],
+          [ -0.5,  0.5, -0.5 ]
+        ]
+      },
+      {
+        dir: [ 0, -1, 0 ],
+        corners: [
+          [ -0.5, -0.5, -0.5 ],
+          [  0.5, -0.5, -0.5 ],
+          [  0.5, -0.5,  0.5 ],
+          [ -0.5, -0.5,  0.5 ]
+        ]
+      },
+      {
+        dir: [ 0, 0, 1 ],
+        corners: [
+          [  0.5, -0.5,  0.5 ],
+          [  0.5,  0.5,  0.5 ],
+          [ -0.5,  0.5,  0.5 ],
+          [ -0.5, -0.5,  0.5 ]
+        ]
+      },
+      {
+        dir: [ 0, 0, -1 ],
+        corners: [
+          [ -0.5, -0.5, -0.5 ],
+          [ -0.5,  0.5, -0.5 ],
+          [  0.5,  0.5, -0.5 ],
+          [  0.5, -0.5, -0.5 ]
+        ]
+      }
+    ];
+
+    const transparentTypes = new Set(["water", "leaves"]);
+
+    function shouldCullFace(currentType, neighborType) {
+      if (!neighborType) return false;
+
+      // Solid touching solid: cull
+      if (!transparentTypes.has(currentType) && !transparentTypes.has(neighborType)) {
+        return true;
+      }
+
+      // Same transparent type touching itself: cull
+      if (currentType === neighborType) {
+        return true;
+      }
+
+      // Water next to solid should still show water edge
+      if (currentType === "water" && neighborType !== "water") {
         return false;
       }
-      return true;
+
+      // Leaves next to solid usually still okay to cull only if blocked
+      if (currentType === "leaves" && !transparentTypes.has(neighborType)) {
+        return true;
+      }
+
+      // Solid next to transparent should show
+      if (!transparentTypes.has(currentType) && transparentTypes.has(neighborType)) {
+        return false;
+      }
+
+      return false;
+    }
+
+    function buildGeometryForType(type) {
+      const positions = [];
+      const normals = [];
+      const indices = [];
+
+      let indexOffset = 0;
+
+      for (const [k, blockType] of blocks) {
+        if (blockType !== type) continue;
+
+        const [x, y, z] = k.split(",").map(Number);
+
+        for (const face of faces) {
+          const nx = x + face.dir[0];
+          const ny = y + face.dir[1];
+          const nz = z + face.dir[2];
+          const neighbor = getBlock(nx, ny, nz);
+
+          if (shouldCullFace(type, neighbor)) continue;
+
+          for (const c of face.corners) {
+            positions.push(x + c[0], y + c[1], z + c[2]);
+            normals.push(face.dir[0], face.dir[1], face.dir[2]);
+          }
+
+          indices.push(
+            indexOffset, indexOffset + 1, indexOffset + 2,
+            indexOffset, indexOffset + 2, indexOffset + 3
+          );
+          indexOffset += 4;
+        }
+      }
+
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+      geometry.setAttribute("normal", new THREE.Float32BufferAttribute(normals, 3));
+      geometry.setIndex(indices);
+      geometry.computeBoundingSphere();
+      return geometry;
+    }
+
+    // -------------------------
+    // Build world meshes
+    // -------------------------
+    const opaqueOrder = ["grass", "dirt", "stone", "sand", "wood"];
+    const transparentOrder = ["leaves", "water"];
+
+    for (const type of opaqueOrder) {
+      const geometry = buildGeometryForType(type);
+      const mesh = new THREE.Mesh(geometry, materials[type]);
+      scene.add(mesh);
+    }
+
+    for (const type of transparentOrder) {
+      const geometry = buildGeometryForType(type);
+      const mesh = new THREE.Mesh(geometry, materials[type]);
+      scene.add(mesh);
+    }
+
+    // -------------------------
+    // Button actions
+    // -------------------------
+    document.getElementById("singleBtn").addEventListener("click", () => {
+      alert("Open Singleplayer Menu");
     });
 
+    document.getElementById("multiBtn").addEventListener("click", () => {
+      alert("Open Multiplayer Menu");
+    });
+
+    document.getElementById("optionsBtn").addEventListener("click", () => {
+      alert("Open Options Menu");
+    });
+
+    document.getElementById("quitBtn").addEventListener("click", () => {
+      alert("Quit Game");
+    });
+
+    // -------------------------
+    // Animate panorama camera
+    // -------------------------
     let t = 0;
+
     function animate() {
       requestAnimationFrame(animate);
+
       t += 0.003;
 
-      // Minecraft-like panorama sweep
       camera.rotation.order = "YXZ";
-      camera.rotation.y = t * 0.25;
-      camera.rotation.x = -0.15 + Math.sin(t * 0.7) * 0.03;
+      camera.rotation.y = t * 0.22;
+      camera.rotation.x = -0.18 + Math.sin(t * 0.75) * 0.025;
 
       renderer.render(scene, camera);
     }
 
     animate();
 
+    // -------------------------
+    // Resize
+    // -------------------------
     window.addEventListener("resize", () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
