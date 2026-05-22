@@ -1,487 +1,233 @@
+```html
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Blockcraft Menu</title>
   <style>
-    html, body {
-      margin: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: #000;
-    }
-
-    body {
-      font-family: Arial, sans-serif;
-    }
-
-    canvas {
-      display: block;
-    }
-
-    .ui {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      pointer-events: none;
-      z-index: 10;
-    }
-
-    .title {
-      color: #fff;
-      font-family: Arial Black, sans-serif;
-      font-size: clamp(42px, 7vw, 96px);
-      letter-spacing: 2px;
-      text-shadow:
-        4px 4px 0 #4a4a4a,
-        8px 8px 0 rgba(0,0,0,0.28);
-      margin-bottom: 8px;
-      user-select: none;
-    }
-
-    .splash {
-      color: #ffeb3b;
-      font-family: Arial Black, sans-serif;
-      font-size: clamp(14px, 2vw, 28px);
-      transform: rotate(-12deg);
-      text-shadow: 2px 2px 0 #000;
-      margin-bottom: 28px;
-      animation: pulse 1.6s infinite ease-in-out;
-      user-select: none;
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: rotate(-12deg) scale(1); }
-      50% { transform: rotate(-12deg) scale(1.08); }
-    }
-
-    .menu {
-      width: min(420px, 86vw);
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      pointer-events: auto;
-    }
-
-    .btn {
-      appearance: none;
-      border: 3px solid #3f3f3f;
-      background: linear-gradient(to bottom, #bdbdbd, #7a7a7a);
-      color: white;
-      font-family: Arial Black, sans-serif;
-      font-size: clamp(16px, 2vw, 24px);
-      text-shadow: 2px 2px 0 #000;
-      padding: 14px 18px;
-      cursor: pointer;
-      box-shadow:
-        inset 0 2px 0 rgba(255,255,255,0.28),
-        inset 0 -2px 0 rgba(0,0,0,0.26);
-    }
-
-    .btn:hover {
-      filter: brightness(1.1);
-    }
-
-    .btn:active {
-      transform: translateY(2px);
-    }
-
-    .footer-left,
-    .footer-right {
-      position: fixed;
-      bottom: 10px;
-      color: white;
-      font-size: 13px;
-      text-shadow: 1px 1px 0 #000;
-      z-index: 10;
-      user-select: none;
-      pointer-events: none;
-    }
-
-    .footer-left { left: 12px; }
-    .footer-right { right: 12px; }
+    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000;font-family:Arial,sans-serif}
+    canvas{display:block}
+    .ui,.panelWrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:10}
+    .ui{flex-direction:column;pointer-events:none}
+    .title{color:#fff;font:900 clamp(42px,7vw,96px)/1 Arial Black,sans-serif;letter-spacing:2px;
+      text-shadow:4px 4px 0 #4a4a4a,8px 8px 0 rgba(0,0,0,.28);margin-bottom:8px;user-select:none}
+    .splash{color:#ffeb3b;font:900 clamp(14px,2vw,28px)/1 Arial Black,sans-serif;transform:rotate(-12deg);
+      text-shadow:2px 2px 0 #000;margin-bottom:28px;animation:pulse 1.6s infinite ease-in-out;user-select:none}
+    @keyframes pulse{0%,100%{transform:rotate(-12deg) scale(1)}50%{transform:rotate(-12deg) scale(1.08)}}
+    .menu,.panel{width:min(420px,88vw);display:flex;flex-direction:column;gap:12px;pointer-events:auto}
+    .btn,input{appearance:none;border:3px solid #3f3f3f;background:linear-gradient(to bottom,#bdbdbd,#7a7a7a);
+      color:#fff;font:900 clamp(16px,2vw,24px)/1 Arial Black,sans-serif;text-shadow:2px 2px 0 #000;
+      padding:14px 18px;box-shadow:inset 0 2px 0 rgba(255,255,255,.28),inset 0 -2px 0 rgba(0,0,0,.26)}
+    .btn{cursor:pointer}.btn:hover{filter:brightness(1.1)}.btn:active{transform:translateY(2px)}
+    input{font:700 18px/1 Arial,sans-serif;text-shadow:none;outline:none}
+    .panelWrap{background:rgba(0,0,0,.45);display:none}.panel{background:rgba(0,0,0,.35);padding:16px}
+    .row{display:flex;gap:12px}.row>*{flex:1}.small{font:700 14px Arial,sans-serif;color:#fff;text-shadow:1px 1px 0 #000}
+    .footer-left,.footer-right{position:fixed;bottom:10px;color:#fff;font-size:13px;text-shadow:1px 1px 0 #000;z-index:10;user-select:none}
+    .footer-left{left:12px}.footer-right{right:12px}.hidden{display:none}
   </style>
 </head>
 <body>
-  <div class="ui">
+  <div class="ui" id="mainUI">
     <div class="title">BLOCKCRAFT</div>
-    <div class="splash" id="splash">Now with culled faces!</div>
-
+    <div class="splash" id="splash">Now with worlds!</div>
     <div class="menu">
       <button class="btn" id="singleBtn">Singleplayer</button>
-      <button class="btn" id="multiBtn">Multiplayer</button>
       <button class="btn" id="optionsBtn">Options</button>
+      <button class="btn" id="deleteBtn">Delete Saved World</button>
       <button class="btn" id="quitBtn">Quit Game</button>
     </div>
   </div>
 
-  <div class="footer-left">Blockcraft Clone v0.3</div>
-  <div class="footer-right">Voxel Panorama + Face Culling</div>
+  <div class="panelWrap" id="worldPanel">
+    <div class="panel">
+      <div class="small" id="worldMsg">Create New World</div>
+      <input id="worldName" placeholder="World Name" value="My World">
+      <input id="worldSeed" placeholder="Seed (optional)">
+      <div class="row">
+        <button class="btn" id="createWorldBtn">Create World</button>
+        <button class="btn" id="loadWorldBtn">Load Saved</button>
+      </div>
+      <button class="btn" id="backFromWorldBtn">Back</button>
+    </div>
+  </div>
+
+  <div class="panelWrap" id="optionsPanel">
+    <div class="panel">
+      <div class="small">Options</div>
+      <input id="rotSpeed" type="number" step="0.01" placeholder="Rotation Speed">
+      <input id="fogDist" type="number" step="1" placeholder="Fog Far Distance">
+      <div class="row">
+        <button class="btn" id="saveOptionsBtn">Save</button>
+        <button class="btn" id="resetOptionsBtn">Reset</button>
+      </div>
+      <button class="btn" id="backFromOptionsBtn">Back</button>
+    </div>
+  </div>
+
+  <div class="footer-left" id="statusText">Menu</div>
+  <div class="footer-right">Voxel Panorama + Saves</div>
 
   <script type="module">
     import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
 
-    // -------------------------
-    // Splash text
-    // -------------------------
-    const splashes = [
-      "Now with culled faces!",
-      "No bridge photos included!",
-      "100% more cubic!",
-      "Procedurally menu'd!",
-      "Hidden faces not invited!",
-      "Rendered responsibly!"
-    ];
-    document.getElementById("splash").textContent =
-      splashes[Math.floor(Math.random() * splashes.length)];
+    const $ = id => document.getElementById(id), SAVE_KEY="blockcraft_world", OPT_KEY="blockcraft_options";
+    $("splash").textContent=["Now with worlds!","Locally saved!","Seeded terrain!","Blocks included!"][Math.floor(Math.random()*4)];
 
-    // -------------------------
-    // Renderer
-    // -------------------------
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.prepend(renderer.domElement);
+    let options = JSON.parse(localStorage.getItem(OPT_KEY) || '{"rotSpeed":0.22,"fogFar":120}');
+    $("rotSpeed").value = options.rotSpeed; $("fogDist").value = options.fogFar;
 
-    // -------------------------
-    // Scene / camera / lights
-    // -------------------------
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x87c6ff);
-    scene.fog = new THREE.Fog(0x87c6ff, 35, 120);
+    const renderer = new THREE.WebGLRenderer({antialias:true});
+    renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.setSize(innerWidth,innerHeight); document.body.prepend(renderer.domElement);
+    const scene = new THREE.Scene(); scene.background = new THREE.Color(0x87c6ff); scene.fog = new THREE.Fog(0x87c6ff,35,options.fogFar);
+    const camera = new THREE.PerspectiveCamera(70,innerWidth/innerHeight,.1,500); camera.position.set(0,14,0);
+    scene.add(new THREE.AmbientLight(0xffffff,.78)); const sun = new THREE.DirectionalLight(0xffffff,.95); sun.position.set(30,60,25); scene.add(sun);
 
-    const camera = new THREE.PerspectiveCamera(
-      70,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      500
-    );
-    camera.position.set(0, 14, 0);
-
-    const ambient = new THREE.AmbientLight(0xffffff, 0.78);
-    scene.add(ambient);
-
-    const sun = new THREE.DirectionalLight(0xffffff, 0.95);
-    sun.position.set(30, 60, 25);
-    scene.add(sun);
-
-    // -------------------------
-    // Block storage
-    // -------------------------
-    const blocks = new Map();
-
-    function key(x, y, z) {
-      return `${x},${y},${z}`;
-    }
-
-    function setBlock(x, y, z, type) {
-      blocks.set(key(x, y, z), type);
-    }
-
-    function getBlock(x, y, z) {
-      return blocks.get(key(x, y, z));
-    }
-
-    function removeBlock(x, y, z) {
-      blocks.delete(key(x, y, z));
-    }
-
-    // -------------------------
-    // Terrain generation
-    // -------------------------
-    const WORLD_SIZE = 40;
-    const WATER_LEVEL = 5;
-
-    function heightAt(x, z) {
-      return Math.floor(
-        6 +
-        Math.sin(x * 0.22) * 2 +
-        Math.cos(z * 0.18) * 2 +
-        Math.sin((x + z) * 0.12) * 2
-      );
-    }
-
-    for (let x = -WORLD_SIZE; x <= WORLD_SIZE; x++) {
-      for (let z = -WORLD_SIZE; z <= WORLD_SIZE; z++) {
-        const h = heightAt(x, z);
-
-        for (let y = 0; y <= h; y++) {
-          if (y === h) {
-            setBlock(x, y, z, h <= WATER_LEVEL ? "sand" : "grass");
-          } else if (y > h - 3) {
-            setBlock(x, y, z, "dirt");
-          } else {
-            setBlock(x, y, z, "stone");
-          }
-        }
-
-        if (h < WATER_LEVEL) {
-          for (let y = h + 1; y <= WATER_LEVEL; y++) {
-            setBlock(x, y, z, "water");
-          }
-        }
-
-        const canTree =
-          h > WATER_LEVEL + 1 &&
-          Math.random() < 0.018 &&
-          Math.abs(x) > 6 &&
-          Math.abs(z) > 6;
-
-        if (canTree) {
-          const trunkHeight = 4 + Math.floor(Math.random() * 2);
-
-          for (let y = h + 1; y <= h + trunkHeight; y++) {
-            setBlock(x, y, z, "wood");
-          }
-
-          for (let lx = -2; lx <= 2; lx++) {
-            for (let lz = -2; lz <= 2; lz++) {
-              for (let ly = trunkHeight - 1; ly <= trunkHeight + 1; ly++) {
-                if (Math.abs(lx) + Math.abs(lz) < 4) {
-                  setBlock(x + lx, h + ly, z + lz, "leaves");
-                }
-              }
-            }
-          }
-
-          setBlock(x, h + trunkHeight + 2, z, "leaves");
-        }
-      }
-    }
-
-    // Clear center space so the menu has a better view
-    for (let x = -6; x <= 6; x++) {
-      for (let z = -6; z <= 6; z++) {
-        for (let y = 7; y <= 30; y++) {
-          removeBlock(x, y, z);
-        }
-      }
-    }
-
-    // -------------------------
-    // Materials
-    // -------------------------
     const materials = {
-      grass: new THREE.MeshLambertMaterial({ color: 0x4cba3c }),
-      dirt: new THREE.MeshLambertMaterial({ color: 0x8a5a2b }),
-      stone: new THREE.MeshLambertMaterial({ color: 0x7d7d7d }),
-      sand: new THREE.MeshLambertMaterial({ color: 0xd6c27a }),
-      wood: new THREE.MeshLambertMaterial({ color: 0x6b4a2b }),
-      leaves: new THREE.MeshLambertMaterial({
-        color: 0x2e8b3c,
-        transparent: true,
-        opacity: 0.95
-      }),
-      water: new THREE.MeshLambertMaterial({
-        color: 0x3a7bd5,
-        transparent: true,
-        opacity: 0.78
-      })
+      grass:new THREE.MeshLambertMaterial({color:0x4cba3c}),
+      dirt:new THREE.MeshLambertMaterial({color:0x8a5a2b}),
+      stone:new THREE.MeshLambertMaterial({color:0x7d7d7d}),
+      sand:new THREE.MeshLambertMaterial({color:0xd6c27a}),
+      wood:new THREE.MeshLambertMaterial({color:0x6b4a2b}),
+      leaves:new THREE.MeshLambertMaterial({color:0x2e8b3c,transparent:true,opacity:.95}),
+      water:new THREE.MeshLambertMaterial({color:0x3a7bd5,transparent:true,opacity:.78})
     };
-
-    // -------------------------
-    // Face data
-    // -------------------------
+    const transparent = new Set(["water","leaves"]);
     const faces = [
-      {
-        dir: [ 1, 0, 0 ],
-        corners: [
-          [ 0.5, -0.5, -0.5 ],
-          [ 0.5,  0.5, -0.5 ],
-          [ 0.5,  0.5,  0.5 ],
-          [ 0.5, -0.5,  0.5 ]
-        ]
-      },
-      {
-        dir: [ -1, 0, 0 ],
-        corners: [
-          [ -0.5, -0.5,  0.5 ],
-          [ -0.5,  0.5,  0.5 ],
-          [ -0.5,  0.5, -0.5 ],
-          [ -0.5, -0.5, -0.5 ]
-        ]
-      },
-      {
-        dir: [ 0, 1, 0 ],
-        corners: [
-          [ -0.5,  0.5,  0.5 ],
-          [  0.5,  0.5,  0.5 ],
-          [  0.5,  0.5, -0.5 ],
-          [ -0.5,  0.5, -0.5 ]
-        ]
-      },
-      {
-        dir: [ 0, -1, 0 ],
-        corners: [
-          [ -0.5, -0.5, -0.5 ],
-          [  0.5, -0.5, -0.5 ],
-          [  0.5, -0.5,  0.5 ],
-          [ -0.5, -0.5,  0.5 ]
-        ]
-      },
-      {
-        dir: [ 0, 0, 1 ],
-        corners: [
-          [  0.5, -0.5,  0.5 ],
-          [  0.5,  0.5,  0.5 ],
-          [ -0.5,  0.5,  0.5 ],
-          [ -0.5, -0.5,  0.5 ]
-        ]
-      },
-      {
-        dir: [ 0, 0, -1 ],
-        corners: [
-          [ -0.5, -0.5, -0.5 ],
-          [ -0.5,  0.5, -0.5 ],
-          [  0.5,  0.5, -0.5 ],
-          [  0.5, -0.5, -0.5 ]
-        ]
-      }
+      {d:[1,0,0],c:[[.5,-.5,-.5],[.5,.5,-.5],[.5,.5,.5],[.5,-.5,.5]]},
+      {d:[-1,0,0],c:[[-.5,-.5,.5],[-.5,.5,.5],[-.5,.5,-.5],[-.5,-.5,-.5]]},
+      {d:[0,1,0],c:[[-.5,.5,.5],[.5,.5,.5],[.5,.5,-.5],[-.5,.5,-.5]]},
+      {d:[0,-1,0],c:[[-.5,-.5,-.5],[.5,-.5,-.5],[.5,-.5,.5],[-.5,-.5,.5]]},
+      {d:[0,0,1],c:[[.5,-.5,.5],[.5,.5,.5],[-.5,.5,.5],[-.5,-.5,.5]]},
+      {d:[0,0,-1],c:[[-.5,-.5,-.5],[-.5,.5,-.5],[.5,.5,-.5],[.5,-.5,-.5]]}
     ];
+    let worldMeshes = [];
 
-    const transparentTypes = new Set(["water", "leaves"]);
+    function rnd(seed){ return function(){ seed|=0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed>>>15,1|seed); t ^= t + Math.imul(t ^ t>>>7,61|t); return ((t ^ t>>>14)>>>0)/4294967296; } }
+    function hashSeed(s){ s = String(s||"0"); let h=2166136261; for(let i=0;i<s.length;i++) h = Math.imul(h ^ s.charCodeAt(i),16777619); return h>>>0; }
 
-    function shouldCullFace(currentType, neighborType) {
-      if (!neighborType) return false;
-
-      // Solid touching solid: cull
-      if (!transparentTypes.has(currentType) && !transparentTypes.has(neighborType)) {
-        return true;
+    function makeWorldData(name, seedStr){
+      const seed = hashSeed(seedStr || Math.floor(Math.random()*1e9)), random = rnd(seed), size=40, water=5, blocks=new Map();
+      const key=(x,y,z)=>`${x},${y},${z}`, set=(x,y,z,t)=>blocks.set(key(x,y,z),t), get=(x,y,z)=>blocks.get(key(x,y,z));
+      const hAt=(x,z)=>Math.floor(6+Math.sin((x+seed%17)*.22)*2+Math.cos((z+seed%23)*.18)*2+Math.sin((x+z+seed%31)*.12)*2);
+      for(let x=-size;x<=size;x++) for(let z=-size;z<=size;z++){
+        const h=hAt(x,z);
+        for(let y=0;y<=h;y++) set(x,y,z, y===h ? (h<=water?"sand":"grass") : y>h-3 ? "dirt" : "stone");
+        if(h<water) for(let y=h+1;y<=water;y++) set(x,y,z,"water");
+        if(h>water+1 && random()<.018 && Math.abs(x)>6 && Math.abs(z)>6){
+          const th=4+Math.floor(random()*2);
+          for(let y=h+1;y<=h+th;y++) set(x,y,z,"wood");
+          for(let lx=-2;lx<=2;lx++) for(let lz=-2;lz<=2;lz++) for(let ly=th-1;ly<=th+1;ly++) if(Math.abs(lx)+Math.abs(lz)<4) set(x+lx,h+ly,z+lz,"leaves");
+          set(x,h+th+2,z,"leaves");
+        }
       }
+      for(let x=-6;x<=6;x++) for(let z=-6;z<=6;z++) for(let y=7;y<=30;y++) blocks.delete(key(x,y,z));
+      return {name,seed,seedStr:String(seedStr||seed),size,water,entries:[...blocks.entries()]};
+    }
 
-      // Same transparent type touching itself: cull
-      if (currentType === neighborType) {
-        return true;
-      }
-
-      // Water next to solid should still show water edge
-      if (currentType === "water" && neighborType !== "water") {
-        return false;
-      }
-
-      // Leaves next to solid usually still okay to cull only if blocked
-      if (currentType === "leaves" && !transparentTypes.has(neighborType)) {
-        return true;
-      }
-
-      // Solid next to transparent should show
-      if (!transparentTypes.has(currentType) && transparentTypes.has(neighborType)) {
-        return false;
-      }
-
+    function shouldCull(cur, nei){
+      if(!nei) return false;
+      if(!transparent.has(cur) && !transparent.has(nei)) return true;
+      if(cur===nei) return true;
+      if(cur==="water" && nei!=="water") return false;
+      if(cur==="leaves" && !transparent.has(nei)) return true;
+      if(!transparent.has(cur) && transparent.has(nei)) return false;
       return false;
     }
 
-    function buildGeometryForType(type) {
-      const positions = [];
-      const normals = [];
-      const indices = [];
-
-      let indexOffset = 0;
-
-      for (const [k, blockType] of blocks) {
-        if (blockType !== type) continue;
-
-        const [x, y, z] = k.split(",").map(Number);
-
-        for (const face of faces) {
-          const nx = x + face.dir[0];
-          const ny = y + face.dir[1];
-          const nz = z + face.dir[2];
-          const neighbor = getBlock(nx, ny, nz);
-
-          if (shouldCullFace(type, neighbor)) continue;
-
-          for (const c of face.corners) {
-            positions.push(x + c[0], y + c[1], z + c[2]);
-            normals.push(face.dir[0], face.dir[1], face.dir[2]);
+    function buildWorld(world){
+      for(const m of worldMeshes){ scene.remove(m); m.geometry.dispose(); }
+      worldMeshes = [];
+      const blocks = new Map(world.entries), get=(x,y,z)=>blocks.get(`${x},${y},${z}`);
+      const buildType = type => {
+        const pos=[], norm=[], ind=[]; let off=0;
+        for(const [k,t] of blocks){ if(t!==type) continue; const [x,y,z]=k.split(",").map(Number);
+          for(const f of faces){
+            const n=get(x+f.d[0],y+f.d[1],z+f.d[2]); if(shouldCull(type,n)) continue;
+            for(const c of f.c){ pos.push(x+c[0],y+c[1],z+c[2]); norm.push(...f.d); }
+            ind.push(off,off+1,off+2,off,off+2,off+3); off+=4;
           }
-
-          indices.push(
-            indexOffset, indexOffset + 1, indexOffset + 2,
-            indexOffset, indexOffset + 2, indexOffset + 3
-          );
-          indexOffset += 4;
         }
+        const g=new THREE.BufferGeometry();
+        g.setAttribute("position",new THREE.Float32BufferAttribute(pos,3));
+        g.setAttribute("normal",new THREE.Float32BufferAttribute(norm,3)); g.setIndex(ind); g.computeBoundingSphere();
+        return g;
+      };
+      for(const type of ["grass","dirt","stone","sand","wood","leaves","water"]){
+        const mesh = new THREE.Mesh(buildType(type), materials[type]); scene.add(mesh); worldMeshes.push(mesh);
       }
-
-      const geometry = new THREE.BufferGeometry();
-      geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-      geometry.setAttribute("normal", new THREE.Float32BufferAttribute(normals, 3));
-      geometry.setIndex(indices);
-      geometry.computeBoundingSphere();
-      return geometry;
+      $("statusText").textContent = `World: ${world.name} | Seed: ${world.seedStr}`;
     }
 
-    // -------------------------
-    // Build world meshes
-    // -------------------------
-    const opaqueOrder = ["grass", "dirt", "stone", "sand", "wood"];
-    const transparentOrder = ["leaves", "water"];
+    function getSavedWorld(){ const s=localStorage.getItem(SAVE_KEY); return s ? JSON.parse(s) : null; }
+    function saveWorld(world){ localStorage.setItem(SAVE_KEY, JSON.stringify(world)); }
+    function createAndLoadWorld(name, seed){ const w=makeWorldData(name||"My World", seed); saveWorld(w); buildWorld(w); closePanels(); }
 
-    for (const type of opaqueOrder) {
-      const geometry = buildGeometryForType(type);
-      const mesh = new THREE.Mesh(geometry, materials[type]);
-      scene.add(mesh);
+    function openPanel(id){ $("worldPanel").style.display="none"; $("optionsPanel").style.display="none"; $(id).style.display="flex"; }
+    function closePanels(){ $("worldPanel").style.display="none"; $("optionsPanel").style.display="none"; }
+
+    $("singleBtn").onclick = () => {
+      const saved = getSavedWorld();
+      if(saved){ buildWorld(saved); closePanels(); }
+      else{
+        $("worldMsg").textContent = "Create New World";
+        $("loadWorldBtn").disabled = true;
+        openPanel("worldPanel");
+      }
+    };
+
+    $("createWorldBtn").onclick = () => createAndLoadWorld($("worldName").value.trim(), $("worldSeed").value.trim());
+    $("loadWorldBtn").onclick = () => { const w=getSavedWorld(); if(w){ buildWorld(w); closePanels(); } };
+    $("backFromWorldBtn").onclick = closePanels;
+
+    $("optionsBtn").onclick = () => openPanel("optionsPanel");
+    $("backFromOptionsBtn").onclick = closePanels;
+    $("saveOptionsBtn").onclick = () => {
+      options.rotSpeed = parseFloat($("rotSpeed").value) || .22;
+      options.fogFar = parseFloat($("fogDist").value) || 120;
+      scene.fog.far = options.fogFar;
+      localStorage.setItem(OPT_KEY, JSON.stringify(options));
+      closePanels();
+    };
+    $("resetOptionsBtn").onclick = () => {
+      options = {rotSpeed:.22,fogFar:120};
+      $("rotSpeed").value = options.rotSpeed; $("fogDist").value = options.fogFar; scene.fog.far = options.fogFar;
+      localStorage.setItem(OPT_KEY, JSON.stringify(options));
+    };
+
+    $("deleteBtn").onclick = () => {
+      localStorage.removeItem(SAVE_KEY);
+      $("statusText").textContent = "Saved world deleted";
+    };
+
+    $("quitBtn").onclick = () => alert("You can’t close a browser tab from here.");
+
+    const existing = getSavedWorld();
+    if(existing){
+      $("worldMsg").textContent = "Saved world found";
+      $("loadWorldBtn").disabled = false;
+      buildWorld(existing);
+    } else {
+      const preview = makeWorldData("Menu Preview","preview");
+      buildWorld(preview);
+      $("statusText").textContent = "No saved world";
     }
 
-    for (const type of transparentOrder) {
-      const geometry = buildGeometryForType(type);
-      const mesh = new THREE.Mesh(geometry, materials[type]);
-      scene.add(mesh);
-    }
-
-    // -------------------------
-    // Button actions
-    // -------------------------
-    document.getElementById("singleBtn").addEventListener("click", () => {
-      alert("Open Singleplayer Menu");
-    });
-
-    document.getElementById("multiBtn").addEventListener("click", () => {
-      alert("Open Multiplayer Menu");
-    });
-
-    document.getElementById("optionsBtn").addEventListener("click", () => {
-      alert("Open Options Menu");
-    });
-
-    document.getElementById("quitBtn").addEventListener("click", () => {
-      alert("Quit Game");
-    });
-
-    // -------------------------
-    // Animate panorama camera
-    // -------------------------
-    let t = 0;
-
-    function animate() {
+    let t=0;
+    function animate(){
       requestAnimationFrame(animate);
-
       t += 0.003;
-
-      camera.rotation.order = "YXZ";
-      camera.rotation.y = t * 0.22;
-      camera.rotation.x = -0.18 + Math.sin(t * 0.75) * 0.025;
-
-      renderer.render(scene, camera);
+      camera.rotation.order="YXZ";
+      camera.rotation.y = t * options.rotSpeed;
+      camera.rotation.x = -0.18 + Math.sin(t*.75)*.025;
+      renderer.render(scene,camera);
     }
-
     animate();
 
-    // -------------------------
-    // Resize
-    // -------------------------
-    window.addEventListener("resize", () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
+    addEventListener("resize",()=>{
+      camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight);
     });
   </script>
 </body>
 </html>
+```
