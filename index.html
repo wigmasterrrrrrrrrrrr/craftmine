@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Blockcraft Menu</title>
   <style>
     html, body {
@@ -17,38 +17,35 @@
       display: block;
     }
 
-    /* UI overlay */
     .ui {
       position: fixed;
       inset: 0;
-      pointer-events: none;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      pointer-events: none;
     }
 
     .title {
-      pointer-events: none;
       color: white;
       font-family: Arial Black, sans-serif;
-      font-size: clamp(40px, 6vw, 80px);
+      font-size: clamp(42px, 7vw, 96px);
       text-shadow:
-        3px 3px 0 #3a3a3a,
-        6px 6px 0 rgba(0,0,0,0.35);
-      margin-bottom: 6px;
+        4px 4px 0 #444,
+        8px 8px 0 rgba(0,0,0,0.3);
       letter-spacing: 2px;
+      margin-bottom: 8px;
     }
 
     .splash {
-      pointer-events: none;
       color: #ffeb3b;
       font-family: Arial Black, sans-serif;
       font-size: clamp(14px, 2vw, 28px);
       transform: rotate(-12deg);
       text-shadow: 2px 2px 0 #000;
       margin-bottom: 28px;
-      animation: pulse 1.6s infinite ease-in-out;
+      animation: pulse 1.5s infinite ease-in-out;
     }
 
     @keyframes pulse {
@@ -65,22 +62,21 @@
     }
 
     .btn {
-      background: linear-gradient(to bottom, #a6a6a6, #6d6d6d);
-      border: 3px solid #3f3f3f;
+      background: linear-gradient(to bottom, #bdbdbd, #7e7e7e);
+      border: 3px solid #444;
       box-shadow:
-        inset 0 2px 0 rgba(255,255,255,0.25),
+        inset 0 2px 0 rgba(255,255,255,0.3),
         inset 0 -2px 0 rgba(0,0,0,0.25);
       color: white;
       font-family: Arial Black, sans-serif;
       font-size: clamp(16px, 2vw, 24px);
-      padding: 14px 18px;
       text-shadow: 2px 2px 0 #000;
+      padding: 14px;
       cursor: pointer;
-      user-select: none;
     }
 
     .btn:hover {
-      filter: brightness(1.12);
+      filter: brightness(1.1);
     }
 
     .btn:active {
@@ -91,213 +87,188 @@
       position: fixed;
       bottom: 10px;
       color: white;
-      font-family: sans-serif;
       font-size: 13px;
+      font-family: sans-serif;
       text-shadow: 1px 1px 0 #000;
       pointer-events: none;
     }
 
     .footer-left { left: 12px; }
     .footer-right { right: 12px; }
-
-    .fade {
-      position: fixed;
-      inset: 0;
-      background: black;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 350ms ease;
-    }
   </style>
 </head>
 <body>
   <div class="ui">
     <div class="title">BLOCKCRAFT</div>
-    <div class="splash" id="splash">Now with panorama!</div>
+    <div class="splash" id="splash">Now with real blocks!</div>
 
     <div class="menu">
-      <button class="btn" id="singleBtn">Singleplayer</button>
-      <button class="btn" id="multiBtn">Multiplayer</button>
-      <button class="btn" id="optionsBtn">Options</button>
-      <button class="btn" id="quitBtn">Quit Game</button>
+      <button class="btn" onclick="alert('Singleplayer')">Singleplayer</button>
+      <button class="btn" onclick="alert('Multiplayer')">Multiplayer</button>
+      <button class="btn" onclick="alert('Options')">Options</button>
+      <button class="btn" onclick="alert('Quit Game')">Quit Game</button>
     </div>
   </div>
 
-  <div class="footer-left">Blockcraft Clone v0.1</div>
-  <div class="footer-right">WebGL + Three.js Menu</div>
-  <div class="fade" id="fade"></div>
+  <div class="footer-left">Blockcraft Clone v0.2</div>
+  <div class="footer-right">Voxel Panorama Menu</div>
 
   <script type="module">
     import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
 
-    // -------------------------
-    // Splash text
-    // -------------------------
     const splashes = [
-      "Now with panorama!",
-      "Totally not Minecraft!",
-      "Chunky and proud!",
-      "Powered by cubes!",
-      "Infinite terrain sold separately!",
-      "Procedurally menu'd!"
+      "Now with real blocks!",
+      "No bridge photos included!",
+      "100% more cubic!",
+      "Procedurally tasty!",
+      "Grass sold separately!"
     ];
     document.getElementById("splash").textContent =
       splashes[Math.floor(Math.random() * splashes.length)];
 
-    // -------------------------
-    // Renderer / Scene / Camera
-    // -------------------------
     const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     document.body.prepend(renderer.domElement);
 
     const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x87c6ff);
+    scene.fog = new THREE.Fog(0x87c6ff, 30, 90);
 
-    // Camera sits in the middle of the panorama cube
     const camera = new THREE.PerspectiveCamera(
       70,
       window.innerWidth / window.innerHeight,
       0.1,
-      1000
+      500
     );
-    camera.position.set(0, 0, 0.01);
 
-    // -------------------------
-    // Panorama skybox
-    // -------------------------
-    // Replace these with your own six panorama images if you want.
-    // Order: px, nx, py, ny, pz, nz
-    const loader = new THREE.CubeTextureLoader();
+    // Menu panorama camera position
+    camera.position.set(0, 12, 0);
 
-    // Example placeholder set from three.js examples.
-    // You can swap to your own /panorama/ folder:
-    // [
-    //   "panorama/px.jpg", "panorama/nx.jpg",
-    //   "panorama/py.jpg", "panorama/ny.jpg",
-    //   "panorama/pz.jpg", "panorama/nz.jpg"
-    // ]
-    const cubeTexture = loader.load([
-      "https://threejs.org/examples/textures/cube/Bridge2/posx.jpg",
-      "https://threejs.org/examples/textures/cube/Bridge2/negx.jpg",
-      "https://threejs.org/examples/textures/cube/Bridge2/posy.jpg",
-      "https://threejs.org/examples/textures/cube/Bridge2/negy.jpg",
-      "https://threejs.org/examples/textures/cube/Bridge2/posz.jpg",
-      "https://threejs.org/examples/textures/cube/Bridge2/negz.jpg"
-    ]);
-
-    scene.background = cubeTexture;
-
-    // Optional dark overlay "fog" effect with translucent sphere
-    const overlayGeo = new THREE.SphereGeometry(40, 32, 32);
-    const overlayMat = new THREE.MeshBasicMaterial({
-      color: 0x000000,
-      transparent: true,
-      opacity: 0.18,
-      side: THREE.BackSide
-    });
-    const overlaySphere = new THREE.Mesh(overlayGeo, overlayMat);
-    scene.add(overlaySphere);
-
-    // -------------------------
-    // Simple fake "blocky world silhouettes"
-    // -------------------------
-    const group = new THREE.Group();
-    scene.add(group);
-
-    const boxGeo = new THREE.BoxGeometry(1, 1, 1);
-
-    function addTower(x, y, z, h, color) {
-      for (let i = 0; i < h; i++) {
-        const mat = new THREE.MeshLambertMaterial({ color });
-        const cube = new THREE.Mesh(boxGeo, mat);
-        cube.position.set(x, y + i, z);
-        group.add(cube);
-      }
-    }
-
-    // Ground-ish chunks near horizon
-    for (let x = -10; x <= 10; x += 2) {
-      for (let z = -10; z <= 10; z += 2) {
-        const height = Math.floor(Math.random() * 3) + 1;
-        addTower(x, -4, z - 18, height, 0x4f8a3c);
-      }
-    }
-
-    // A few taller "trees"/shapes
-    addTower(-6, -3, -14, 5, 0x6b4f2a);
-    addTower(6, -3, -16, 6, 0x6b4f2a);
-    addTower(-6, 2, -14, 3, 0x2e6b2e);
-    addTower(-5, 2, -14, 3, 0x2e6b2e);
-    addTower(6, 3, -16, 3, 0x2e6b2e);
-    addTower(7, 3, -16, 3, 0x2e6b2e);
-
-    // Lighting
-    const ambient = new THREE.AmbientLight(0xffffff, 0.8);
+    const ambient = new THREE.AmbientLight(0xffffff, 0.75);
     scene.add(ambient);
 
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
-    dirLight.position.set(5, 8, 2);
-    scene.add(dirLight);
+    const sun = new THREE.DirectionalLight(0xffffff, 0.9);
+    sun.position.set(30, 50, 20);
+    scene.add(sun);
 
-    // -------------------------
-    // Animation
-    // -------------------------
-    let time = 0;
+    const world = new THREE.Group();
+    scene.add(world);
 
+    const cubeGeo = new THREE.BoxGeometry(1, 1, 1);
+
+    const materials = {
+      grass: new THREE.MeshLambertMaterial({ color: 0x4cba3c }),
+      dirt: new THREE.MeshLambertMaterial({ color: 0x8a5a2b }),
+      stone: new THREE.MeshLambertMaterial({ color: 0x7d7d7d }),
+      wood: new THREE.MeshLambertMaterial({ color: 0x6b4a2b }),
+      leaves: new THREE.MeshLambertMaterial({ color: 0x2e8b3c }),
+      water: new THREE.MeshLambertMaterial({
+        color: 0x3a7bd5,
+        transparent: true,
+        opacity: 0.8
+      })
+    };
+
+    function block(x, y, z, mat) {
+      const mesh = new THREE.Mesh(cubeGeo, mat);
+      mesh.position.set(x, y, z);
+      world.add(mesh);
+    }
+
+    // Simple terrain height function
+    function heightAt(x, z) {
+      return Math.floor(
+        6
+        + Math.sin(x * 0.22) * 2
+        + Math.cos(z * 0.18) * 2
+        + Math.sin((x + z) * 0.12) * 2
+      );
+    }
+
+    const size = 40;
+    const waterLevel = 5;
+
+    for (let x = -size; x <= size; x++) {
+      for (let z = -size; z <= size; z++) {
+        const h = heightAt(x, z);
+
+        for (let y = 0; y <= h; y++) {
+          if (y === h) {
+            block(x, y, z, h <= waterLevel ? materials.sand || materials.dirt : materials.grass);
+          } else if (y > h - 3) {
+            block(x, y, z, materials.dirt);
+          } else {
+            block(x, y, z, materials.stone);
+          }
+        }
+
+        // Water
+        if (h < waterLevel) {
+          for (let y = h + 1; y <= waterLevel; y++) {
+            block(x, y, z, materials.water);
+          }
+        }
+
+        // Trees
+        const canTree =
+          h > waterLevel + 1 &&
+          Math.random() < 0.015 &&
+          Math.abs(x) > 4 &&
+          Math.abs(z) > 4;
+
+        if (canTree) {
+          const trunkHeight = 4 + Math.floor(Math.random() * 2);
+
+          for (let y = h + 1; y <= h + trunkHeight; y++) {
+            block(x, y, z, materials.wood);
+          }
+
+          for (let lx = -2; lx <= 2; lx++) {
+            for (let lz = -2; lz <= 2; lz++) {
+              for (let ly = trunkHeight - 1; ly <= trunkHeight + 1; ly++) {
+                if (Math.abs(lx) + Math.abs(lz) < 4) {
+                  block(x + lx, h + ly, z + lz, materials.leaves);
+                }
+              }
+            }
+          }
+
+          block(x, h + trunkHeight + 2, z, materials.leaves);
+        }
+      }
+    }
+
+    // Center clearing so menu sees open terrain
+    const clearRadius = 6;
+    world.children = world.children.filter(mesh => {
+      const { x, z, y } = mesh.position;
+      if (Math.abs(x) < clearRadius && Math.abs(z) < clearRadius && y > 6) {
+        world.remove(mesh);
+        return false;
+      }
+      return true;
+    });
+
+    let t = 0;
     function animate() {
       requestAnimationFrame(animate);
-      time += 0.003;
+      t += 0.003;
 
-      // Slow panorama-like camera sweep
+      // Minecraft-like panorama sweep
       camera.rotation.order = "YXZ";
-      camera.rotation.y = Math.sin(time * 0.6) * 0.35 + time * 0.12;
-      camera.rotation.x = Math.sin(time * 0.9) * 0.04;
-
-      // Slight world drift for extra menu ambiance
-      group.rotation.y = time * 0.08;
+      camera.rotation.y = t * 0.25;
+      camera.rotation.x = -0.15 + Math.sin(t * 0.7) * 0.03;
 
       renderer.render(scene, camera);
     }
+
     animate();
 
-    // -------------------------
-    // Resize
-    // -------------------------
     window.addEventListener("resize", () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-
-    // -------------------------
-    // Button actions
-    // -------------------------
-    const fade = document.getElementById("fade");
-
-    function fakeTransition(label) {
-      console.log(label);
-      fade.style.opacity = "0.55";
-      setTimeout(() => {
-        alert(label);
-        fade.style.opacity = "0";
-      }, 250);
-    }
-
-    document.getElementById("singleBtn").addEventListener("click", () => {
-      fakeTransition("Open Singleplayer Menu");
-    });
-
-    document.getElementById("multiBtn").addEventListener("click", () => {
-      fakeTransition("Open Multiplayer Menu");
-    });
-
-    document.getElementById("optionsBtn").addEventListener("click", () => {
-      fakeTransition("Open Options Menu");
-    });
-
-    document.getElementById("quitBtn").addEventListener("click", () => {
-      fakeTransition("Quit Game");
     });
   </script>
 </body>
